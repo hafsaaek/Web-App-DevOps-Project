@@ -7,7 +7,7 @@ trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: ubuntu-latest # specifies the virtual machine or container environment where the pipeline's tasks will run. In this case, it's set to use an Ubuntu-based image (vmImage: ubuntu-latest). The choice of the image depends on the requirements of your project, and you can select different images based on your needs.Ω
 
 steps:
 - script: echo Hello, world!
@@ -25,3 +25,4 @@ steps:
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
     tags: 'v1.0'  
+
