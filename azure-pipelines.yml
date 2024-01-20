@@ -26,3 +26,9 @@ steps:
     Dockerfile: '**/Dockerfile'
     tags: 'v1.0'  
 
+- task: KubernetesManifest@1
+  inputs:
+    action: 'deploy'
+    connectionType: 'kubernetesServiceConnection'
+    kubernetesServiceConnection: 'AKS Terraform Cluster'
+    manifests: '$(System.DefaultWorkingDirectory)/application-manifest.yaml'
