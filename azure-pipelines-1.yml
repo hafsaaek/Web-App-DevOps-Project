@@ -1,0 +1,27 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: Docker@2
+  inputs:
+    containerRegistry: 'Docker'
+    repository: 'hafsaaek/order-list-app'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+    tags: 'v1.0'
+- task: KubernetesManifest@1
+  inputs:
+    action: 'deploy'
+    connectionType: 'azureResourceManager'
+    azureSubscriptionConnection: 'Hafsa Kahiye DevOps(1)(4ba48c24-b8e6-48bc-8dcd-57b77290d360)'
+    azureResourceGroup: 'networking-resource-group'
+    kubernetesCluster: 'terraform-aks-cluster'
+    manifests: '**/application-manifest.yaml'
