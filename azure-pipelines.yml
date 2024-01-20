@@ -9,26 +9,39 @@ trigger:
 pool:
   vmImage: ubuntu-latest # specifies the virtual machine or container environment where the pipeline's tasks will run. In this case, it's set to use an Ubuntu-based image (vmImage: ubuntu-latest). The choice of the image depends on the requirements of your project, and you can select different images based on your needs.Ω
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+stages:
+- stage: build
+  displayName: 'Build Stage'
+  jobs:
+    - job: BuildAndPush
+      displayName: 'Build and Push to Container Registry'
+      steps:
+      - script: echo Hello, world!
+        displayName: 'Run a one-line script'
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'Docker'
+          repository: 'hafsaaek/order-list-app'
+          command: 'buildAndPush'
+          Dockerfile: '**/Dockerfile'
+          tags: 'v1.0'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- stage: deploy
+  displayName: 'Deploy using AKS stage'
+  jobs:
+  - job: DeploytoKubernetes
+    displayName: 'Deploy to Kubernetes'
+    steps:
+    - script: |
+        echo Add other tasks to build, test, and deploy your project.
+        echo See https://aka.ms/yaml
+      displayName: 'Run a multi-line script'
+    - task: KubernetesManifest@1
+      inputs:
+        action: 'deploy'
+        connectionType: 'kubernetesServiceConnection'
+        kubernetesServiceConnection: 'AKS Terraform Cluster'
+        manifests: '$(System.DefaultWorkingDirectory)/application-manifest.yaml'
 
-- task: Docker@2
-  inputs:
-    containerRegistry: 'Docker'
-    repository: 'hafsaaek/order-list-app'
-    command: 'buildAndPush'
-    Dockerfile: '**/Dockerfile'
-    tags: 'v1.0'  
+ 
 
-- task: KubernetesManifest@1
-  inputs:
-    action: 'deploy'
-    connectionType: 'kubernetesServiceConnection'
-    kubernetesServiceConnection: 'AKS Terraform Cluster'
-    manifests: '$(System.DefaultWorkingDirectory)/application-manifest.yaml'
