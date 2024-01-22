@@ -14,15 +14,14 @@ spec:
     rollingUpdate:
       maxUnavailable: 1
       maxSurge: 1
-  progressDeadlineSeconds: 600
   template:
     metadata:
       labels:
         app: flask-app
     spec:
       containers:
-      - name: order-list-app
-        image: order-list-app:v1.0
+      - name: flask-app
+        image: hafsaaek/order-list-app # hafsaaek/order-list-app
         ports:
         - containerPort: 5000
 
