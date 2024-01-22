@@ -25,14 +25,14 @@ steps:
     azureResourceGroup: 'networking-resource-group'
     kubernetesCluster: 'terraform-aks-cluster'
     manifests: '**/application-manifest.yaml'
-# For debugging purposes
-- task: Kubernetes@1
-  inputs:
-    connectionType: 'Kubernetes Service Connection'
-    command: 'run'
-    arguments: 'kubectl get rs,pods -l app=flask-app --namespace default'
-- task: Kubernetes@1
-  inputs:
-    connectionType: 'Kubernetes Service Connection'
-    command: 'run'
-    arguments: 'kubectl describe deployment flask-app-deployment --namespace default'
+# # For debugging purposes
+# - task: Kubernetes@1
+#   inputs:
+#     connectionType: 'Kubernetes Service Connection'
+#     command: 'run'
+#     arguments: 'kubectl get rs,pods -l app=flask-app --namespace default'
+# - task: Kubernetes@1
+#   inputs:
+#     connectionType: 'Kubernetes Service Connection'
+#     command: 'run'
+#     arguments: 'kubectl describe deployment flask-app-deployment --namespace default'
