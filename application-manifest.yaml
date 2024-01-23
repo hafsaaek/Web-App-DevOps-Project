@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: flask-app
-        image: hafsaaek/order-list-app # hafsaaek/order-list-app
+        image: hafsaaek/order-list-app:v1.0 # hafsaaek/order-list-app
         ports:
         - containerPort: 5000
 
