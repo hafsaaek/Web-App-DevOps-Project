@@ -60,3 +60,10 @@ To run the application, you simply need to run the `app.py` script in this repos
 ## License
 
 This project is licensed under the MIT License. For more details, refer to the [LICENSE](LICENSE) file.
+
+## Documentation of Porject How to's
+
+## Part 9: AKS integtation with Azure Keyvault for secrets management
+Created a Azure Keyvault and assigned the Key Vault Administrator role to my Microsoft Entra ID user to grant myself the necessary permissions for managing secrets within the Key Vault.
+Following this, I created four secrets in the Key Vault to secure the credentials used within the application to connect to the backend database. These secrets include the server name, server username, server password, and the database name and ensured that the values of these secrets are set to the hardcoded values from the application code.
+To integrate Azure Key vault with the AKS cluster, a system managedidentity was leveraged for secure secrets retrieval, and the application code was ammended to refelct this change as well as depencies to make the docker image and requirement files.
