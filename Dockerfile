@@ -25,6 +25,9 @@ RUN pip install --upgrade pip setuptools
 # TODO: Step 4 - Install Python packages specified in requirements.txt
 RUN pip install -r requirements.txt
 
+# Additional installation for Azure libraries Milestone 10
+RUN pip install azure-identity azure-keyvault-secrets
+
 # TODO: Step 5 - Expose port 
 EXPOSE 5000
 
