@@ -94,9 +94,9 @@ This project is licensed under the MIT License. For more details, refer to the [
 To deploy the containerised application onto a Kubernetes cluster for scalability, a 3 step approach was taken; creating an AKS cluster module, a networking module and integrating the two modules to provision the cluster
 #### Part 3.1: Defining Networking Services with IaC (Terraform)
 1. Defined the networking module input variables in a variables.tf file (see below). In this file to allow us to configure and customise networking services based on specific requirements (all variable were of type list(string) and created with a default value)
-    # A resource_group_name variable that will represent the name of the Azure Resource Group where the networking resources will be deployed in. The variable should be of type string and have a default value.
-    # A location variable that specifies the Azure region where the networking resources will be deployed to
-    # A vnet_address_space variable that specifies the address space for the Virtual Network (VNet) that will be create later in the main configuration file of this module
+    - A resource_group_name variable that will represent the name of the Azure Resource Group where the networking resources will be deployed in. The variable should be of type string and have a default value.
+    - A location variable that specifies the Azure region where the networking resources will be deployed to
+    - A vnet_address_space variable that specifies the address space for the Virtual Network (VNet) that will be create later in the main configuration file of this module
 2. Definde Networking resources & NSG Rules:
 - This included creating an Azure Resource Group, a VNet, two subnets (for the control plane and worker nodes) and a Network Security Group (NSG). Within the NSG, two inbound rules were defined: one to allow traffic to the kube-apiserver (named kube-apiserver-rule) and one to allow inbound SSH traffic (named ssh-rule) to allow inbound traffic from the local public IP address.
 3. Defined the output variables in an outputs.tf configuration file to enable access and utilize information from the networking module. These variables will be used to provision the networking services used by the AKS cluster later on, when provisioning the cluster module. The output variables are:
