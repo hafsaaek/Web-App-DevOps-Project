@@ -141,6 +141,35 @@ To deploy the containerised application onto a Kubernetes cluster for scalabilit
     - kubectl get nodes
     - kubectl config get-contexts
 
+### Part 4: Containerisation using Docker 
+1. Define K8s Deployment Manifest with the following deployment specs:
+    - Labels: flask-app
+    - Replicas: 2 for scalability.
+    - Container Image: Docker Hub.
+    - Port: 5000 for AKS cluster.
+    - Strategy: Rolling Updates.
+2. Define K8s Deployment Manifest with the following service specs:
+    - Type: ClusterIP
+    - Name: flask-app-service
+    - Selector: Match app: flask-app.
+    - Protocol: TCP, Port: 80, TargetPort: 5000.
+3. Deploy to AKS
+    3.1 Ensure Correct Context
+    - kubectl config get-contexts
+    - kubectl config use-context <your-aks-context-name>
+    3.2 Apply Manifest and Monitor
+    - Apply manifest: kubectl apply -f application-manifest.yaml
+    - Monitor deployment: kubectl get pods -w.
+    3.3 Verify Deployment Status
+    - Check pods: kubectl get pods.
+    - Check services: kubectl get services.
+4. Testing with Port Forwarding
+    4.1 Verify Pod and Service Status and ensure pods are running, services exposed.
+    4.2 Initiate Port Forwarding
+    - kubectl port-forward <pod-name> 5000:5000.
+    4.3 Test Application Locally
+    - Access at http://127.0.0.1:5000.
+
 ### Part 9: AKS integtation with Azure Keyvault for secrets management
 1. Created a Azure Keyvault and assigned the Key Vault Administrator role to my Microsoft Entra ID user to grant myself the necessary permissions for managing secrets within the Key Vault.
 2. Following this, I created four secrets in the Key Vault to secure the credentials used within the application to connect to the backend database. These secrets include the server name, server username, server password, and the database name and ensured that the values of these secrets are set to the hardcoded values from the application code.
