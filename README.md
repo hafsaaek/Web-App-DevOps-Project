@@ -141,7 +141,7 @@ To deploy the containerised application onto a Kubernetes cluster for scalabilit
     - kubectl get nodes
     - kubectl config get-contexts
 
-### Part 4: Containerisation using Docker 
+### Part 4: Kubernetes deployment to AKS
 1. Define K8s Deployment Manifest with the following deployment specs:
     - Labels: flask-app
     - Replicas: 2 for scalability.
@@ -170,7 +170,16 @@ To deploy the containerised application onto a Kubernetes cluster for scalabilit
     4.3 Test Application Locally
     - Access at http://127.0.0.1:5000.
 
-### Part 9: AKS integtation with Azure Keyvault for secrets management
+### Part 5: CI/CD Pipeline with Azure DevOps
+Creating the CI/CD Pipeline using Azure DevOps to automate the deployment of the application. This will automate the build and deployment of the application, streamlining the development pipeline for efficiency and reliability.
+1. Created an Azure DevOps Project with a starter pipeline template
+2. Created a service connection between azure and docker hub 
+3. Modified the pipeline configuration to include the automatic build and push the created Docker image from before and ran the pipeline to test this
+4. Modified the CI/CD pipeline to incorporate the Deploy to Kubernetes task with the deploy kubectl command
+5. Run the pipeline manually or trigger an automatic job by pushing a change onto remote repo's main branch
+
+
+### Part 7: AKS integtation with Azure Keyvault for secrets management
 1. Created a Azure Keyvault and assigned the Key Vault Administrator role to my Microsoft Entra ID user to grant myself the necessary permissions for managing secrets within the Key Vault.
 2. Following this, I created four secrets in the Key Vault to secure the credentials used within the application to connect to the backend database. These secrets include the server name, server username, server password, and the database name and ensured that the values of these secrets are set to the hardcoded values from the application code.
 3. To integrate Azure Key vault with the AKS cluster, a system managedidentity was leveraged for secure secrets retrieval, and the application code was ammended to refelct this change as well as depencies to make the docker image and requirement files.
