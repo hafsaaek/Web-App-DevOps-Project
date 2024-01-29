@@ -36,6 +36,8 @@ For the application to succesfully run, you need to install the following packag
 - pyodbc (version 4.0.39)
 - SQLAlchemy (version 2.0.21)
 - werkzeug (version 2.2.3)
+- azure-identity==1.15.0 (added following AKS integration with Azure Key Vault)
+- azure-keyvault-secrets==4.4.0 (added following AKS integration with Azure Key Vault)
 
 ### Usage
 
@@ -63,7 +65,31 @@ This project is licensed under the MIT License. For more details, refer to the [
 
 ## Documentation of Project How to's
 
+### Part 1: Version Control
+1. Cloned fork repo to my local workstation and created a new branch for the purpose of adding a new feature that would allow the application to contain a delivery_date column
+2. Code changes were made to the python file and corresponding HTML file and the changes were pushed to the remote repo
+3. A pull request was created, once this was reviewed, the feature branch was merged into main
+4. It was decided that this new feature was not needed thus, a new branch (revert-delivery-date) was created to revert the changes using git revert <commit-hash>
+5. The changes were then pushed to the remote repo and an additional pull request was made which was approved and merged into main.
+
+### Part 2: Containerisation with Docker Control
+1. Utilised an official Python runtime as a base image as this was most suitable for a flask application (FROM `python:3.8-slim`).
+2. Set the working directory in the container (WORKDIR /app)
+3. Used the COPY instruction to copy the contents of the local directory into the containers /app directory to ensure that the application code and files are available within the container (COPY  . .)
+4. Installed Python Packages from requirements.txt: Install Python packages specified in your requirements.txt file using the command (pip install --trusted-host pypi.python.org -r requirements.txt) to install the packages. The requirements.txt file contains all the packages necessary for running the application successfully (See a list of these requirements in the Prerequisites section above). 
+5. Exposed Port 5000: to make he Flask application accessible from outside the container
+6. Defined Startup Command by using  the CMD instruction to specify the command that should be executed when the container launches (CMD ["python", "app.py"])
+7. Built  docker image using the command 'docker build -t order-list-app .'
+8. Ran & initiated a Docker container locally to ensure the application functions correctly within the containerised environment (docker run -p 5000:5000 order-list-app). This mapped port 5000 from your my machine to the container, enabling access to the containerised application from my local development environment. The application was confirmed to be working as expected by visiting  http://127.0.0.1:5000 and interaction  interact with the application within the Docker container. 
+    docker run -p 5000:5000 order-list-app # This will give you a background log of the new app running on docker in the container, if you exit i.e. crtll +c, the container stops running
+9. Tagged and push docker image to docker hub
+    docker tag order-list-app hafsaaek/order-list-app:v1.0 
+    docker images order-list-app # To see all tags associated with an image, you can use docker images
+10. To verify this, the same image was pulled form docker hub and used ro run a container
+    docker pull hafsaaek/order-list-app:v1.0
+    docker run -p 5000:5000 hafsaaek/order-list-app:v1.0
+
 ### Part 9: AKS integtation with Azure Keyvault for secrets management
-Created a Azure Keyvault and assigned the Key Vault Administrator role to my Microsoft Entra ID user to grant myself the necessary permissions for managing secrets within the Key Vault.
-Following this, I created four secrets in the Key Vault to secure the credentials used within the application to connect to the backend database. These secrets include the server name, server username, server password, and the database name and ensured that the values of these secrets are set to the hardcoded values from the application code.
-To integrate Azure Key vault with the AKS cluster, a system managedidentity was leveraged for secure secrets retrieval, and the application code was ammended to refelct this change as well as depencies to make the docker image and requirement files.
+1. Created a Azure Keyvault and assigned the Key Vault Administrator role to my Microsoft Entra ID user to grant myself the necessary permissions for managing secrets within the Key Vault.
+2. Following this, I created four secrets in the Key Vault to secure the credentials used within the application to connect to the backend database. These secrets include the server name, server username, server password, and the database name and ensured that the values of these secrets are set to the hardcoded values from the application code.
+3. To integrate Azure Key vault with the AKS cluster, a system managedidentity was leveraged for secure secrets retrieval, and the application code was ammended to refelct this change as well as depencies to make the docker image and requirement files.
