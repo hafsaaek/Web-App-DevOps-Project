@@ -57,6 +57,7 @@ To run the application, you simply need to run the `app.py` script in this repos
 
 ## Contributors 
 
+- [Hafsa Kahiye] (https://github.com/hafsaaek)
 - [Maya Iuga]([https://github.com/yourusername](https://github.com/maya-a-iuga))
 
 ## License
@@ -72,7 +73,7 @@ This project is licensed under the MIT License. For more details, refer to the [
 4. It was decided that this new feature was not needed thus, a new branch (revert-delivery-date) was created to revert the changes using git revert <commit-hash>
 5. The changes were then pushed to the remote repo and an additional pull request was made which was approved and merged into main.
 
-### Part 2: Containerisation with Docker Control
+### Part 2: Containerisation using Docker 
 1. Utilised an official Python runtime as a base image as this was most suitable for a flask application (FROM `python:3.8-slim`).
 2. Set the working directory in the container (WORKDIR /app)
 3. Used the COPY instruction to copy the contents of the local directory into the containers /app directory to ensure that the application code and files are available within the container (COPY  . .)
@@ -88,6 +89,57 @@ This project is licensed under the MIT License. For more details, refer to the [
 10. To verify this, the same image was pulled form docker hub and used ro run a container
     docker pull hafsaaek/order-list-app:v1.0
     docker run -p 5000:5000 hafsaaek/order-list-app:v1.0
+
+### Part 3: AKS Cluster Provisioning using Terraform 
+To deploy the containerised application onto a Kubernetes cluster for scalability, a 3 step approach was taken; creating an AKS cluster module, a networking module and integrating the two modules to provision the cluster
+#### Part 3.1: Defining Networking Services with IaC (Terraform)
+1. Defined the networking module input variables in a variables.tf file (see below). In this file to allow us to configure and customise networking services based on specific requirements (all variable were of type list(string) and created with a default value)
+    # A resource_group_name variable that will represent the name of the Azure Resource Group where the networking resources will be deployed in. The variable should be of type string and have a default value.
+    # A location variable that specifies the Azure region where the networking resources will be deployed to
+    # A vnet_address_space variable that specifies the address space for the Virtual Network (VNet) that will be create later in the main configuration file of this module
+2. Definde Networking resources & NSG Rules:
+- This included creating an Azure Resource Group, a VNet, two subnets (for the control plane and worker nodes) and a Network Security Group (NSG). Within the NSG, two inbound rules were defined: one to allow traffic to the kube-apiserver (named kube-apiserver-rule) and one to allow inbound SSH traffic (named ssh-rule) to allow inbound traffic from the local public IP address.
+3. Defined the output variables in an outputs.tf configuration file to enable access and utilize information from the networking module. These variables will be used to provision the networking services used by the AKS cluster later on, when provisioning the cluster module. The output variables are:
+    - A vnet_id variable that will store the ID of the previously created VNet. This will be used within the cluster module to connect the cluster to the defined VNet.
+    - A control_plane_subnet_id variable that will hold the ID of the control plane subnet within the VNet. This will be used to specify the subnet where the control plane components of the AKS cluster will be deployed to.
+    - A worker_node_subnet_id variable that will store the ID of the worker node subnet within the VNet. This will be used to specify the subnet where the worker nodes of the AKS cluster will be deployed to.
+    - A networking_resource_group_name variable that will provide the name of the Azure Resource Group where the networking resources were provisioned in. This will be used to ensure the cluster module resources are provisioned within the same resource group.
+    - A aks_nsg_id variable that will store the ID of the Network Security Group (NSG). This will be used to associate the NSG with the AKS cluster for security rule enforcement and traffic filtering.
+4. Initialise the Networking module to ensure it is ready to use 
+- terraform init
+#### Part 3.2: Defining an AKS Cluster Services with IaC (Terraform)
+1. Define the input variables for the AKS Cluster module in a variables.tf configuration file.
+    - A aks_cluster_name variable that represents the name of the AKS cluster
+    - A cluster_location variable that specifies the Azure region where the AKS cluster will be deployed to
+    - A dns_prefix variable that defines the DNS prefix of cluster
+    - A kubernetes_version variable that specifies which Kubernetes version the cluster will use
+    - A service_principal_client_id variable that provides the Client ID for the service principal associated with the cluster
+    - A service_principal_secret variable that supplies the Client Secret for the service principal
+- Additionally, the output variables from the networking module as input variables for this module were added:
+    - The resource_group_name variable
+    - The vnet_id variable
+    - The control_plane_subnet_id variable
+    - The worker_node_subnet_id variable
+2. Defined the the necessary Azure resources for provisioning an AKS cluster within the cluster modules main.tf configuration file. This includes creating the AKS cluster, specifying the node pool and the service principal by using the input variables defined in the previous step to specify the necessary arguments.
+3. Defined the output variables for the AKS Cluster module inside the outputs.tf configuration file with the following output variables:
+    - A aks_cluster_name variable that will store the name of the provisioned cluster
+    - A aks_cluster_id variable that will store the ID of the cluster
+    - A aks_kubeconfig variable that will capture the Kubernetes configuration file of the cluster. This file is essential for interacting with and managing the AKS cluster using kubectl
+#### Part 3.3: Creating the AKS Cluster using the modules created in steps 3.1 & 3.2 
+1. Integrate the Networking module (See main.tf file)
+2. Integrate the AKS cluster (See main.tf file)
+3. Initialise the terraform project, plan it and debug any issues that arise i.e. see below  (terraform init, terraform plan)
+    - Assign a contribute rule for the new app registration (service principal)
+        az role assignment create --assignee <service-principal-client-id> --role Contributor --scope /subscriptions/<subscription-id>
+        az role assignment list --assignee <service-principal-client-id> --all #To check role for this Service Principle
+    - Make sure all the resources are correctly named everywhere
+4. Apply the configuration to provision the cluster (terraform apply)
+5. Retrieve the kubeconfig file once the AKS cluster has been provisioned to copy into local machine. This configuration file allows you to connect to the AKS cluster securely. Connect to the newly created cluster to ensure that the provisioning process was successful and the cluster is operational.
+    - az aks get-credentials --resource-group <resource-group-name>  --name <AKS-Cluster-Name> # Get credentials and merges in your home directory
+    - cat ~/.kube/config # Verifies these credentials are there:
+6. Interact and access the provisioned AKS cluster using kubectl e.g.:
+    - kubectl get nodes
+    - kubectl config get-contexts
 
 ### Part 9: AKS integtation with Azure Keyvault for secrets management
 1. Created a Azure Keyvault and assigned the Key Vault Administrator role to my Microsoft Entra ID user to grant myself the necessary permissions for managing secrets within the Key Vault.
